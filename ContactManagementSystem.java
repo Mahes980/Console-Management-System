@@ -1,4 +1,5 @@
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 class Contact {
@@ -12,68 +13,55 @@ class Contact {
         this.email = email;
     }
 
-    void display() {
-        System.out.println("Name  : " + name);
-        System.out.println("Phone : " + phone);
-        System.out.println("Email : " + email);
-        System.out.println("---------------------------");
+    @Override
+    public String toString() {
+        return "Name: " + name +
+               ", Phone: " + phone +
+               ", Email: " + email;
     }
 }
 
 public class ContactManagementSystem {
 
-    static ArrayList<Contact> contacts = new ArrayList<>();
+    static LinkedHashMap<Integer, Contact> contacts =
+            new LinkedHashMap<>();
+
     static Scanner sc = new Scanner(System.in);
 
     // Insert Contact
     static void insertContact() {
+        System.out.print("Enter Contact ID: ");
+        int id = sc.nextInt();
+        sc.nextLine();
+
+        if (contacts.containsKey(id)) {
+            System.out.println("Contact ID already exists!");
+            return;
+        }
+
         System.out.print("Enter Name: ");
         String name = sc.nextLine();
 
-        System.out.print("Enter Phone: ");
+        System.out.print("Enter Phone Number: ");
         String phone = sc.nextLine();
 
         System.out.print("Enter Email: ");
         String email = sc.nextLine();
 
-        Contact contact = new Contact(name, phone, email);
-        contacts.add(contact);
+        contacts.put(id, new Contact(name, phone, email));
 
         System.out.println("Contact inserted successfully!");
     }
 
-    // Display All Contacts
-    static void displayContacts() {
-        if (contacts.isEmpty()) {
-            System.out.println("No contacts available.");
-            return;
-        }
+    // Delete Contact
+    static void deleteContact() {
+        System.out.print("Enter Contact ID to delete: ");
+        int id = sc.nextInt();
 
-        System.out.println("\n===== Contact List =====");
-
-        for (int i = 0; i < contacts.size(); i++) {
-            System.out.println("Contact ID: " + (i + 1));
-            contacts.get(i).display();
-        }
-    }
-
-    // Search Contact
-    static void searchContact() {
-        System.out.print("Enter name to search: ");
-        String searchName = sc.nextLine();
-
-        boolean found = false;
-
-        for (Contact contact : contacts) {
-            if (contact.name.equalsIgnoreCase(searchName)) {
-                System.out.println("\nContact Found:");
-                contact.display();
-                found = true;
-            }
-        }
-
-        if (!found) {
-            System.out.println("Contact not found.");
+        if (contacts.remove(id) != null) {
+            System.out.println("Contact deleted successfully!");
+        } else {
+            System.out.println("Contact not found!");
         }
     }
 
@@ -83,17 +71,17 @@ public class ContactManagementSystem {
         int id = sc.nextInt();
         sc.nextLine();
 
-        if (id < 1 || id > contacts.size()) {
-            System.out.println("Invalid Contact ID.");
+        Contact contact = contacts.get(id);
+
+        if (contact == null) {
+            System.out.println("Contact not found!");
             return;
         }
-
-        Contact contact = contacts.get(id - 1);
 
         System.out.print("Enter New Name: ");
         contact.name = sc.nextLine();
 
-        System.out.print("Enter New Phone: ");
+        System.out.print("Enter New Phone Number: ");
         contact.phone = sc.nextLine();
 
         System.out.print("Enter New Email: ");
@@ -102,42 +90,52 @@ public class ContactManagementSystem {
         System.out.println("Contact updated successfully!");
     }
 
-    // Delete Contact
-    static void deleteContact() {
-        System.out.print("Enter Contact ID to delete: ");
+    // Search Contact
+    static void searchContact() {
+        System.out.print("Enter Contact ID to search: ");
         int id = sc.nextInt();
-        sc.nextLine();
 
-        if (id < 1 || id > contacts.size()) {
-            System.out.println("Invalid Contact ID.");
+        Contact contact = contacts.get(id);
+
+        if (contact != null) {
+            System.out.println("\nContact Found:");
+            System.out.println(contact);
+        } else {
+            System.out.println("Contact not found!");
+        }
+    }
+
+    // Display Contacts
+    static void displayContacts() {
+        if (contacts.isEmpty()) {
+            System.out.println("No contacts available!");
             return;
         }
 
-        contacts.remove(id - 1);
+        System.out.println("\n===== ALL CONTACTS =====");
 
-        System.out.println("Contact deleted successfully!");
+        for (Map.Entry<Integer, Contact> entry : contacts.entrySet()) {
+            System.out.println("ID: " + entry.getKey());
+            System.out.println(entry.getValue());
+            System.out.println("-------------------------");
+        }
     }
 
-    // Main Method
     public static void main(String[] args) {
 
         int choice;
 
         do {
-            System.out.println("\n==============================");
-            System.out.println("   CONTACT MANAGEMENT SYSTEM");
-            System.out.println("==============================");
+            System.out.println("\n===== CONTACT MANAGEMENT SYSTEM =====");
             System.out.println("1. Insert Contact");
-            System.out.println("2. Display Contacts");
-            System.out.println("3. Search Contact");
-            System.out.println("4. Update Contact");
-            System.out.println("5. Delete Contact");
+            System.out.println("2. Delete Contact");
+            System.out.println("3. Update Contact");
+            System.out.println("4. Search Contact");
+            System.out.println("5. Display All Contacts");
             System.out.println("6. Exit");
-            System.out.println("==============================");
 
             System.out.print("Enter your choice: ");
             choice = sc.nextInt();
-            sc.nextLine();
 
             switch (choice) {
 
@@ -146,27 +144,27 @@ public class ContactManagementSystem {
                     break;
 
                 case 2:
-                    displayContacts();
-                    break;
-
-                case 3:
-                    searchContact();
-                    break;
-
-                case 4:
-                    updateContact();
-                    break;
-
-                case 5:
                     deleteContact();
                     break;
 
+                case 3:
+                    updateContact();
+                    break;
+
+                case 4:
+                    searchContact();
+                    break;
+
+                case 5:
+                    displayContacts();
+                    break;
+
                 case 6:
-                    System.out.println("Thank you for using Contact Management System!");
+                    System.out.println("Thank you!");
                     break;
 
                 default:
-                    System.out.println("Invalid choice! Please try again.");
+                    System.out.println("Invalid choice!");
             }
 
         } while (choice != 6);
